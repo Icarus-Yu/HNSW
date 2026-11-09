@@ -141,7 +141,7 @@ KBest §5 的主要对比是鲲鹏上的 KBest 与 AMD 上的其他系统，且�
 | 64 | 0.6140 | 92.67 | 128.69 | 107.90 |
 | 128 | 0.7817 | 169.37 | 208.36 | 203.84 |
 
-本轮未观察到加速。尚未通过测量分解原因，不能断言就是批处理开销或缓存命中导致。原始数据见 [smoke.csv](../experiments/results/smoke.csv)，版本、编译参数和同图证据见 [metadata.json](../experiments/results/metadata.json)。
+本轮未观察到加速。尚未通过测量分解原因，不能断言就是批处理开销或缓存命中导致。原始数据见 [smoke.csv](../experiments/results_wsl_2026-11-09/smoke.csv)，版本、编译参数和同图证据见 [metadata.json](../experiments/results_wsl_2026-11-09/metadata.json)。
 
 ## 7. KBest 代码可用性补充
 

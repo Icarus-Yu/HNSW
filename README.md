@@ -2,36 +2,107 @@
 
 更新：2026-11-09。
 
-研究主线已确定：CPU 图检索的访存与执行优化，以 VSAG（PVLDB 2025）为核心论文；KBest 用于分析硬件优化及可迁移思想。具体改进方法与创新点仍待实验验证。
+研究主线：CPU 图检索的访存与执行优化，以 VSAG（PVLDB 2025）为核心论文，KBest 用于提取硬件优化及可迁移思想。具体改进方法和创新点仍待验证。
 
-正式实验优先使用本人双系统中的原生 Ubuntu 24 环境。WSL 保留用于开发和快速检查；已有 WSL 结果属于流程验证，不能当作原生 Linux 的性能结果。原生系统的具体配置与运行结果尚待实际检查。
+换系统后，接续工作的助手先阅读 [CONTINUE_HERE.md](CONTINUE_HERE.md)，再检查本机环境。正式实验使用双系统中的原生 Ubuntu 24；WSL 保留为开发与流程检查环境。
 
 ## 当前进展
 
-- 已精读 VSAG 访存章节及 KBest 硬件优化相关章节，形成方法与源码对照。
-- 已在 WSL2 中跑通基于 hnswlib 的 VSAG 部分方法复现：2 万条合成向量、3 档搜索参数、两个实验版本。
-- 实验版与原版的逐查询 top-10 集合一致；当前小实验未观察到加速，尚未完成真实数据正式评测。
-- 完整 VSAG 源码已下载供阅读与依赖检查，尚未编译完整系统。
+- 已在 WSL2 跑通 hnswlib 与 VSAG §3.2 部分方法：2 万条合成向量、300 条查询、3 档搜索参数。
+- 两个实验版的 top-10 集合与原版一致；当前小实验没有观察到加速。
+- 完整 VSAG 尚未编译；原生 Ubuntu 环境尚未检查和运行。
+- WSL 原始结果已单独保存在 [results_wsl_2026-11-09](experiments/results_wsl_2026-11-09/)，切换后不要覆盖该目录。
 
-## 阅读入口
+## 环境与依赖
 
-| 内容 | 文件 |
+### 当前小实验必需
+
+| 项目 | 要求或用途 |
 | --- | --- |
-| 主线、KBest 硬件优化、迁移判断与实验记录 | [当前研究记录](notes/VSAG主线_KBest迁移分析与本机复现_2026-11-09.md) |
-| HNSW 流程、Cache 基础与实验设计 | [访存研究基础](notes/HNSW_Cache优化方向与实验条件_2026-11-08.md) |
-| 原生 Ubuntu 与 WSL 的运行步骤、源码结构 | [实验说明](experiments/README.md) |
-| 论文文件、版本和来源 | [论文目录](papers/README.md) |
+| 操作系统 | 原生 Ubuntu 24，当前机器为 x86_64 / AMD；实际版本需现场确认 |
+| C++ 编译器 | 支持 C++17 的 g++；此前 WSL 使用 GCC 13.3.0 |
+| Python | Python 3，仅使用标准库 |
+| Git | 下载并核对固定版本上游源码 |
+| taskset | util-linux 提供，用于绑定 CPU |
+| hnswlib | v0.8.0，固定提交见下方；头文件库，无需 pip 安装 |
 
-已删除不再采用的 NUMA 专题和多方向选题讨论；目录中的旧文档链接已清理。原始论文保留为文献资料。
+本轮无需 NumPy、Matplotlib、CMake、GPU、CUDA、MKL 或 pyvsag。CMake 和科学计算包按后续任务需要安装即可。
 
-## 文件分类
+在原生 Ubuntu 安装基础工具：
 
-| 目录 | 内容 |
+```bash
+sudo apt update
+sudo apt install build-essential python3 git util-linux
+```
+
+检查系统、可用内存和 CPU：
+
+```bash
+uname -a
+lscpu
+lscpu -e=CPU,CORE,SOCKET,ONLINE
+free -h
+python3 --version
+g++ --version
+taskset -pc $$
+```
+
+### 可选：性能分析
+
+开始缓存/TLB 分析时再安装 perf，包版本需与正在运行的内核对应：
+
+```bash
+sudo apt install linux-tools-common linux-tools-$(uname -r)
+perf --version
+perf stat -e cycles,instructions -- true
+```
+
+如果内核对应软件包不存在，或事件权限不足，先记录具体报错并检查内核、权限和 CPU 支持，不要自动关闭系统保护。上述命令不代表已验证所有缓存事件。
+
+### 可选：完整 VSAG
+
+当前小实验不依赖完整 VSAG。已下载的 v0.15.0 供阅读和依赖检查，其 Ubuntu 安装脚本列有 CMake、gfortran、Python 开发头文件、OpenMP、libaio、curl 开发库，并在 x86 默认依赖 MKL；构建还拉取 Boost、OpenBLAS、antlr4 等组件。
+
+这是该版本源码的依赖清单，不是已经在原生 Ubuntu 验证成功的安装方案。若后续选择完整构建，先固定版本和所需模块，再核对依赖；不要为了当前头文件实验先安装整套依赖。v0.15.0 尚未确认是论文对应提交。
+
+## 换到原生 Ubuntu 后如何运行
+
+1. 将本项目放在 Linux 本地文件系统，例如 `~/hnsw`。普通复制可以保留整个项目；通过 Git 迁移前先确认本次文档、源码和结果均已进入你要传输的版本。
+2. 至少保留实验脚本、smoke.cpp、论文、研究笔记、CONTINUE_HERE.md 和已归档 WSL 结果。vendor、build、data、tmp 被 Git 忽略，单纯 git clone 不会带上它们。
+3. 若 vendor/hnswlib 缺失，在项目根目录获取固定版本；已存在则不要重复 clone：
+
+```bash
+cd ~/hnsw
+git clone --depth 1 --branch v0.8.0 https://github.com/nmslib/hnswlib.git experiments/vendor/hnswlib
+git -C experiments/vendor/hnswlib rev-parse HEAD
+```
+
+预期提交：`3f3429661187e4c24a490a0f148fc6bc89042b3d`。
+
+先做跨系统源码检查，再运行小实验：
+
+```bash
+cd ~/hnsw
+python3 experiments/test_prepare_variant.py
+cd experiments
+taskset -c 2 python3 run_smoke.py
+```
+
+CPU 2 只是原小实验的选择；运行前确认它在本机允许使用的 CPU 集合中。正式计时应核对物理核心关系，减少同核逻辑线程竞争，保持插电、功耗模式和后台负载稳定。
+
+运行脚本会重新编译三个程序并生成数据、真值和索引，无需复用 WSL 二进制；会覆盖 experiments/results 下的输出。Linux/Windows 换行符已经兼容，实际源码改动仍会被校验拒绝。原生结果保存到 results，WSL 历史结果保留在独立归档目录，两者分开解读。
+
+预期完成：三个程序编译成功、输出 27 行测量数据、六组 top-10 集合检查通过。性能是否改善必须依据新结果，不能把之前 WSL 的时间当作原生结果。
+
+## 资料与源码结构
+
+| 目录或文件 | 内容 |
 | --- | --- |
-| [experiments](experiments/README.md) | 本人实验代码、固定版本的上游源码、构建与数据、原始结果 |
-| [notes](notes/) | 当前主线研究记录与基础材料，共 2 份 Markdown 文档 |
-| [papers](papers/README.md) | 11 篇研究的本地 PDF 与来源记录，主线论文和辅助文献分开说明 |
-| [thesis_documents](thesis_documents/) | 学校任务书、开题报告模板 |
-| [notices](notices/) | 学院与学校毕业论文通知 |
-| [templates](templates/) | 论文模板和书写规范 |
-| [reference_materials](reference_materials/) | 系统操作指南、经验分享 |
+| [CONTINUE_HERE.md](CONTINUE_HERE.md) | 接续助手的上下文、已确认决定、版本和下一步 |
+| [experiments/README.md](experiments/README.md) | 代码布局、运行产物、验证口径与限制 |
+| [notes](notes/) | 主线研究记录与访存基础，共 2 份文档 |
+| [papers/README.md](papers/README.md) | 按主线、相关工作、归档背景整理的 11 篇论文 |
+| [thesis_documents](thesis_documents/) | 任务书与开题报告模板 |
+| [notices](notices/)、[templates](templates/)、[reference_materials](reference_materials/) | 学校要求、格式与参考材料 |
+
+研究细节见 [当前研究记录](notes/VSAG主线_KBest迁移分析与本机复现_2026-11-09.md) 和 [访存基础](notes/HNSW_Cache优化方向与实验条件_2026-11-08.md)。已放弃 NUMA、SSD 独立选题，不再维护多方向讨论稿。

@@ -1,115 +1,58 @@
-# 本机小规模复现
+# 本机部分方法复现
 
-目标：跑通 hnswlib C++ 源码，部分复现 VSAG §3.2 的有效邻居筛选与步长预取。已在 AMD Ryzen 7 7735H、Ubuntu 24.04 / WSL2、GCC 13.3.0 上执行成功。不是完整 VSAG 复现，未验证 Intel 实机性能。
+目的：以 hnswlib 为基础，独立简化复现 VSAG §3.2 的有效邻居筛选与步长预取。环境配置、依赖和原生 Ubuntu 运行命令见 [项目 README](../README.md)。接续助手先读 [CONTINUE_HERE.md](../CONTINUE_HERE.md)。
 
-## 原生 Ubuntu：后续主要测量平台
+## 代码与目录
 
-优先把项目放在原生 Linux 的文件系统中，例如 `~/hnsw`；避免把 Windows 的程序二进制直接搬过来运行。Windows 共享分区可用于传输源码和结果，编译、数据与正式测量尽量放在 Linux 本地文件系统。
+| 路径 | 内容 |
+| --- | --- |
+| `vendor/hnswlib/` | 未修改的 v0.8.0 上游仓库，实验基线 |
+| `vendor/vsag/` | v0.15.0，上游源码阅读与依赖检查，未完整编译；不是本实验依赖 |
+| [smoke.cpp](smoke.cpp) | 合成数据、精确真值、共享索引、查询与计时 |
+| [prepare_variant.py](prepare_variant.py) | 校验上游源码，生成修改底层查询循环的实验头文件 |
+| [test_prepare_variant.py](test_prepare_variant.py) | LF、CRLF 两种源码换行符与实际修改拒绝的迁移检查 |
+| [run_smoke.py](run_smoke.py) | 编译三版本、运行、核对标签、记录结果与环境 |
+| `build/valid/hnswlib/` | 自动生成的实验头文件，不手工修改 |
+| `build/` | 三个本机程序：baseline、valid_s1_d1、valid_s4_d2 |
+| `data/` | 合成向量、精确真值、共享索引与返回标签 |
+| `results/` | 最近一次运行的 CSV 与 metadata.json，会被下次运行覆盖 |
+| [results_wsl_2026-11-09](results_wsl_2026-11-09/) | 单独保留的 WSL 历史记录，后续不覆盖 |
 
-当前会话运行在 Windows 中，尚未进入双系统的原生 Ubuntu，也没有验证那里的编译器、内存、CPU 绑定与硬件计数器。以下是切换后的操作步骤，不表示已经执行。
+Git 忽略 vendor、build、data、tmp；实验脚本和结果归档不在这些忽略规则中。是否已提交，以实际 git status 为准。
 
-在 Ubuntu 中检查：
+`tmp/vsag_source/` 中是另一份最新提交的阅读片段，与 vendor/vsag 不同，不参与编译，也不是迁移必需文件。
 
-```bash
-uname -a
-lscpu
-free -h
-g++ --version
-python3 --version
-```
+## 版本和生成方式
 
-若缺少基础工具，可以安装：
+hnswlib v0.8.0，提交 `3f3429661187e4c24a490a0f148fc6bc89042b3d`。原版仓库保持原样，实验头文件由脚本生成。
 
-```bash
-sudo apt update
-sudo apt install build-essential python3 git
-```
-
-将项目复制到 `~/hnsw` 后，若 vendor/hnswlib 没有随文件一起复制，按下一节的固定版本命令获取。已有 vendor 原版目录则无需重复下载。
-
-首先保留已有 WSL 结果，在项目根目录执行一次：
-
-```bash
-cd ~/hnsw
-cp -a experiments/results experiments/results_wsl_2026-11-09
-```
-
-然后编译并运行本机实验；脚本会重新构建 Linux 程序与索引：
-
-```bash
-cd ~/hnsw/experiments
-taskset -c 2 python3 run_smoke.py
-```
-
-CPU 2 只沿用小实验设置。正式实验前，应检查其物理核心和同核逻辑线程关系，确认没有同核竞争。插电、功耗模式和后台负载尽量保持稳定。
-
-原生环境更便于直接检查 `perf`、缓存/TLB 事件与大页；这些仍取决于内核、权限和 CPU 支持，需要逐项验证。原生环境也不保证每个实现一定提速，WSL 与原生 Linux 的绝对时间必须分别记录。
-
-## WSL：开发与快速检查
-
-在 Windows PowerShell、项目根目录执行：
-
-```powershell
-wsl -d Ubuntu-24.04 -- bash -lc 'cd /mnt/g/hnsw/experiments && taskset -c 2 python3 run_smoke.py'
-```
-
-现有电脑已具备 g++、Python 3。脚本仅使用 Python 标准库，无需 NumPy、hnswlib Python 包或 GPU。CPU 2 是当前机器的绑定选择，换机器需调整。
-
-hnswlib 源码固定在 v0.8.0、提交 `3f3429661187e4c24a490a0f148fc6bc89042b3d`。vendor、生成头文件、程序和数据已忽略。若重新获取项目，在根目录先执行（Ubuntu 终端也使用同一条命令）：
-
-```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/nmslib/hnswlib.git experiments/vendor/hnswlib
-```
-
-每次运行重新生成实验头文件、编译三个程序、生成数据与共享索引，并覆盖 results 中的输出。需要保留旧实验时，请先复制结果。
+校验 hnswalg.h 时先统一为 LF，再计算 SHA-256：`0fb2c1b1d3aae1ea959b536f96844f3f3ae6a2f32ce063f2c31f93d84a7e5c32`。只消除 Windows/Linux 换行差异，其他源码差异仍被拒绝。
 
 ## 三个版本
 
 | 名称 | 内容 |
 | --- | --- |
-| baseline | 未修改的 hnswlib，包含原本已有的预取 |
-| valid_s1_d1 | 先收集未访问邻居；提前 1 个目标、预取 1 条缓存行 |
-| valid_s4_d2 | 同上；提前 4 个目标、预取 2 条缓存行 |
+| baseline | 未修改的 hnswlib，包含其已有预取 |
+| valid_s1_d1 | 先收集未访问邻居；提前 1 个目标，预取 1 条缓存行 |
+| valid_s4_d2 | 同上；提前 4 个目标，预取 2 条缓存行 |
 
-原版建图一次，所有版本加载同一索引。实验保留距离函数、有效邻居次序、候选更新和结束条件。只覆盖静态、无过滤、无删除、无自定义停止条件的查询。
+保留距离函数、有效邻居顺序、队列更新与结束条件。只验证静态、无过滤、无删除、标准停止条件的路径。生成头文件中的 assert 在 -DNDEBUG 下不生效，因此不能将其误当作运行时的通用输入保护。
 
-这是论文方法的独立简化实现：没有完整 VSAG 搜索器、PRS、量化、自动调参或 KBest 算法，也不能作为新方法。
+这不是完整 VSAG，不包含 PRS、量化、自动调参或 KBest 图算法，也不是已经验证的新方法。
 
-## 数据与验证
+## 数据、计时和正确性
 
-- 20,000 条 128 维 FP32 合成向量，300 条独立查询，k=10。
-- 全量距离扫描计算真值；查询不是数据库中抽出的原向量。
-- M=16，efConstruction=200，efSearch=32、64、128。
-- 每档预热 300 次，计时 3 轮；只计搜索调用时间。
-- 每个实验版本每档第一轮的全部 top-10 标签集合，与原版逐查询核对；共 6 组、1,800 次集合比较。
-- 单线程固定逻辑 CPU 2，使用 `-O3 -march=native`，不强制开启 AVX-512。
+- 20,000 条 128 维 FP32 合成向量、300 条独立查询、k=10；全量距离扫描计算真值。
+- 原版仅构建一次索引，三版本加载同一文件；M=16、efConstruction=200，固定随机种子。
+- efSearch=32、64、128；每档预热 300 次，再计时 3 轮，单线程。
+- QPS 按搜索调用耗时计算，不包含建图、读盘、真值核对和服务开销。
+- 每个实验版每档第一轮的 top-10 标签集合与原版逐查询比较；六组、共 1,800 次集合比较。
+- 本轮没有采集缓存事件、温度功耗或实际距离计算次数；不能仅凭同结果断言全部内部工作量相同。
 
-结果：[smoke.csv](results/smoke.csv)；编译信息与校验证据：[metadata.json](results/metadata.json)。
+## 已完成的 WSL 结果
 
-小数据、合成分布、WSL 和固定顺序运行限制了计时解释。未采集缓存计数器，也未记录每轮温度功耗。当前结果用于环境与正确性验证；低召回档位不能当作达到 90% 或 95% 召回的正式结果。
+原始记录：[smoke.csv](results_wsl_2026-11-09/smoke.csv)，环境与索引哈希：[metadata.json](results_wsl_2026-11-09/metadata.json)。
 
-## 为什么先用 hnswlib
+此前在 AMD Ryzen 7 7735H、Ubuntu 24.04 / WSL2、GCC 13.3.0 下完成；六组结果检查一致，没有观察到加速。小合成数据、固定运行顺序与 WSL 限制了性能解释，不是正式真实数据评测。
 
-hnswlib 是头文件库，本轮不需补装系统依赖。VSAG v0.15.0 源码已下载到 vendor/vsag 用于检查，但未编译：它需要 OpenBLAS、Boost、antlr4 等依赖，默认开启 MKL，且论文对应提交尚未确认。它不是运行本实验的依赖。
-
-后续切换完整 VSAG 时，先确定版本与必要模块，按本机 AVX2 能力配置。不能把 v0.15.0 或最新 main 直接称作论文原始实现。
-
-## 当前源码与产物结构
-
-| 路径（相对 experiments） | 用途 | 是否为本人实验代码 |
-| --- | --- | --- |
-| `vendor/hnswlib/` | 未修改的 hnswlib v0.8.0 上游仓库 | 否，基线依赖 |
-| `vendor/vsag/` | VSAG v0.15.0，上游源码与依赖检查；未完整编译 | 否，阅读参考 |
-| `smoke.cpp` | 生成合成数据、精确真值、共享索引；运行查询和计时 | 是 |
-| `prepare_variant.py` | 校验原版头文件，再生成实验查询循环 | 是 |
-| `run_smoke.py` | 编译、运行三版本，核对标签集合，保存结果与环境信息 | 是 |
-| `build/valid/hnswlib/` | 自动生成的实验头文件；变动集中在底层查询循环 | 自动生成，不手改 |
-| `build/baseline`、`build/valid_s1_d1`、`build/valid_s4_d2` | 本机编译程序 | 自动生成，换环境重编 |
-| `data/` | 合成数据、真值、共享索引与返回标签 | 自动生成 |
-| `results/` | CSV 测量记录与 metadata.json；当前为 WSL 结果 | 需保留的实验记录 |
-
-上游源码保持原样，本人改动由生成脚本产生；没有直接把 hnswlib 替换成 VSAG，也没有把两个系统拼成一个库。
-
-论文对照中使用的 VSAG 最新提交片段另存于项目的 `tmp/vsag_source/`，只用于阅读，不参与编译；它与 vendor/vsag 的 v0.15.0 是不同版本。正式扩展前必须统一目标版本。`tmp/pdf_tools/`、`tmp/paper_text/` 是论文阅读辅助文件，也不是实验依赖。
-
-版本控制保留实验代码和结果；忽略 vendor、build、data 与 tmp。重新克隆本项目不会自动获得这些忽略的文件，需要按固定版本获取上游并重跑。
+原生 Ubuntu 尚未执行。切换系统后先重跑同一小实验验证流程，再考虑 SIFT1M 和硬件事件。WSL 与原生测量单独保留，不混为同一组结果。

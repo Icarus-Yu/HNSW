@@ -5,8 +5,10 @@ import shutil
 
 root = Path(__file__).resolve().parent
 src = root / 'vendor/hnswlib/hnswlib'
-expected = '37dbdbf8f5836102f78ad022c1aac26e1818bc0704e21aff36c79e56c1720a37'
-if hashlib.sha256((src / 'hnswalg.h').read_bytes()).hexdigest() != expected:
+# Git checkouts on Windows can use CRLF; validate canonical LF bytes on both OSes.
+expected = '0fb2c1b1d3aae1ea959b536f96844f3f3ae6a2f32ce063f2c31f93d84a7e5c32'
+canonical_header = (src / 'hnswalg.h').read_bytes().replace(b'\r\n', b'\n')
+if hashlib.sha256(canonical_header).hexdigest() != expected:
     raise RuntimeError('Expected unmodified hnswlib v0.8.0 hnswalg.h; refusing to patch another source')
 dst = root / 'build/valid/hnswlib'
 dst.mkdir(parents=True, exist_ok=True)

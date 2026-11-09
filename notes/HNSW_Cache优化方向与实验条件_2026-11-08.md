@@ -216,14 +216,14 @@ Recall@k 使用对应数据库上的精确近邻真值。例如真实最近的 1
 
 | 编号 | 论文与本地 PDF | 年份、版本与定位 |
 | --- | --- | --- |
-| C1 | [Graph Reordering for Cache-Efficient Near Neighbor Search：2022 正式版](../papers/cache/2022_Graph_Reordering_for_Cache_Efficient_Near_Neighbor_Search.pdf) | 基础补充：NeurIPS 2022，13 页，超出近三年范围；2026-11-09 已补充正式版，另保留 2021 年 arXiv v1 |
-| C2 | [KBest: Efficient Vector Search on Kunpeng CPU](../papers/cache/2026_KBest_Efficient_Vector_Search_on_Kunpeng_CPU_arxiv2508.03016v2.pdf) | arXiv 页面列 KDD 2026；本地为 2025 年 v2，重点看硬件感知优化与预取 |
-| C3 | [SymphonyQG](../papers/cache/2025_SymphonyQG_arxiv2411.12229v1.pdf) | SIGMOD 2025 接收信息；本地为 2024 年 v1，属于量化、紧凑布局与批量执行的相邻路线 |
-| C4 | [Distance Comparison Operation Optimization in ANNS: A Survey and Experimental Evaluation](../papers/cache/2026_Distance_Comparison_Operation_Optimization_in_ANNS_EDBT.pdf) | EDBT 2026 正式 PDF；本次补充的距离比较优化综述与评测参考，不是纯缓存优化论文 |
-| C5 | [VSAG: An Optimized Search Framework for Graph-based Approximate Nearest Neighbor Search](../papers/cache/2025_VSAG_Optimized_Search_Framework_for_Graph_Based_ANNS_PVLDB.pdf) | PVLDB 18(12)，2025，正式 PDF，14 页；方向 A 的近期核心参考 |
-| C6 | [Graph-Based Vector Search: An Experimental Evaluation of the State-of-the-Art](../papers/cache/2025_Graph_Based_Vector_Search_Experimental_Evaluation_SIGMOD.pdf) | SIGMOD / PACMMOD 3(1)，2025，作者公开正式排版 PDF，31 页；评测方法参考 |
-| C7 | [Probabilistic Routing for Graph-Based Approximate Nearest Neighbor Search](../papers/cache/2024_Probabilistic_Routing_for_Graph_Based_ANNS_ICML.pdf) | ICML 2024，正式 PDF，19 页；候选筛选与搜索策略的相邻参考 |
-| C8 | [The Impacts of Data, Ordering, and Intrinsic Dimensionality on Recall in Hierarchical Navigable Small Worlds](../papers/cache/2024_HNSW_Data_Ordering_Intrinsic_Dimensionality_Recall_arxiv2405.17813v1.pdf) | ICTIR 2024；本地 arXiv:2405.17813v1，15 页；实验质量控制参考 |
+| C1 | [Graph Reordering for Cache-Efficient Near Neighbor Search：2022 正式版](../papers/related/2022_Graph_Reordering_for_Cache_Efficient_Near_Neighbor_Search.pdf) | 基础补充：NeurIPS 2022，13 页，超出近三年范围；2026-11-09 已补充正式版，2021 年 arXiv v1 仅保留在线入口和历史元数据 |
+| C2 | [KBest: Efficient Vector Search on Kunpeng CPU](../papers/core/2026_KBest_Efficient_Vector_Search_on_Kunpeng_CPU_arxiv2508.03016v2.pdf) | arXiv 页面列 KDD 2026；本地为 2025 年 v2，重点看硬件感知优化与预取 |
+| C3 | [SymphonyQG](../papers/related/2025_SymphonyQG_arxiv2411.12229v1.pdf) | SIGMOD 2025 接收信息；本地为 2024 年 v1，属于量化、紧凑布局与批量执行的相邻路线 |
+| C4 | [Distance Comparison Operation Optimization in ANNS: A Survey and Experimental Evaluation](../papers/related/2026_Distance_Comparison_Operation_Optimization_in_ANNS_EDBT.pdf) | EDBT 2026 正式 PDF；本次补充的距离比较优化综述与评测参考，不是纯缓存优化论文 |
+| C5 | [VSAG: An Optimized Search Framework for Graph-based Approximate Nearest Neighbor Search](../papers/core/2025_VSAG_Optimized_Search_Framework_for_Graph_Based_ANNS_PVLDB.pdf) | PVLDB 18(12)，2025，正式 PDF，14 页；方向 A 的近期核心参考 |
+| C6 | [Graph-Based Vector Search: An Experimental Evaluation of the State-of-the-Art](../papers/related/2025_Graph_Based_Vector_Search_Experimental_Evaluation_SIGMOD.pdf) | SIGMOD / PACMMOD 3(1)，2025，作者公开正式排版 PDF，31 页；评测方法参考 |
+| C7 | [Probabilistic Routing for Graph-Based Approximate Nearest Neighbor Search](../papers/related/2024_Probabilistic_Routing_for_Graph_Based_ANNS_ICML.pdf) | ICML 2024，正式 PDF，19 页；候选筛选与搜索策略的相邻参考 |
+| C8 | [The Impacts of Data, Ordering, and Intrinsic Dimensionality on Recall in Hierarchical Navigable Small Worlds](../papers/related/2024_HNSW_Data_Ordering_Intrinsic_Dimensionality_Recall_arxiv2405.17813v1.pdf) | ICTIR 2024；本地 arXiv:2405.17813v1，15 页；实验质量控制参考 |
 
 版本更新（2026-11-09）：C1 最初因 NeurIPS 域名下载发生 TLS 传输错误，仅收录早期作者预印本；现已通过 [Proceedings.com 下载入口](https://www.proceedings.com/content/068/068431-2789open.pdf) 补充 13 页正式 PDF，并核对首页的 NeurIPS 2022 标识与出版页码。两版本不能按相同页码、算法或实验内容混用，后续分析和引用优先使用本地 2022 正式版。
 
@@ -234,7 +234,7 @@ Recall@k 使用对应数据库上的精确近邻真值。例如真实最近的 1
 3. C3 理解量化编码、图结构与批量距离估计的协同，明确它超出了仅调整原始 HNSW 布局的范围。[来源](https://arxiv.org/abs/2411.12229)
 4. C4 用于梳理距离比较方法和质量—性能、预处理等评价维度；不能据此预设本课题必须量化。[来源](https://openproceedings.org/2026/conf/edbt/paper-270.pdf)
 
-辅助文献 [N2：CCD 级线程调度研究](../papers/numa/2026_CCD_Level_and_Load_Aware_Thread_Orchestration_arxiv2605.10090v1.pdf) 也涉及缓存局部性，但采用多核拓扑与调度切入，统一存放在 numa 分类，避免重复下载。
+辅助文献 [N2：CCD 级线程调度研究](../papers/archive/numa/2026_CCD_Level_and_Load_Aware_Thread_Orchestration_arxiv2605.10090v1.pdf) 也涉及缓存局部性，但采用多核拓扑与调度切入，存放在 archive/numa，作为已放弃方向的背景文献。
 
 ### 8.1 方向 A 的近期核心参考：VSAG
 
