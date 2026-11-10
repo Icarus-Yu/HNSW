@@ -1,0 +1,29 @@
+{
+  "purpose": "VSAG section 3.2 partial method reproduction; synthetic smoke only",
+  "platform": "Linux-6.11.0-29-generic-x86_64-with-glibc2.39",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "hnswlib_commit": "3f3429661187e4c24a490a0f148fc6bc89042b3d",
+  "flags": [
+    "-std=c++17",
+    "-O3",
+    "-march=native",
+    "-DNDEBUG",
+    "-pthread"
+  ],
+  "seed": 20261109,
+  "M": 16,
+  "ef_construction": 200,
+  "timing": "single-thread search call only, 300 warmup queries per ef, 3 repetitions",
+  "affinity": [
+    2
+  ],
+  "correctness_checks": [
+    "valid_s1_d1 ef=32: all 300 top-10 sets equal baseline",
+    "valid_s4_d2 ef=32: all 300 top-10 sets equal baseline",
+    "valid_s1_d1 ef=64: all 300 top-10 sets equal baseline",
+    "valid_s4_d2 ef=64: all 300 top-10 sets equal baseline",
+    "valid_s1_d1 ef=128: all 300 top-10 sets equal baseline",
+    "valid_s4_d2 ef=128: all 300 top-10 sets equal baseline"
+  ],
+  "index_sha256": "ee9e292d3c792d1bfc43e8f37dc59c45b311c861e5c5d27c373687bd9656811c"
+}

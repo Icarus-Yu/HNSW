@@ -7,7 +7,7 @@
 | 路径 | 内容 |
 | --- | --- |
 | `vendor/hnswlib/` | 未修改的 v0.8.0 上游仓库，实验基线 |
-| `vendor/vsag/` | v0.15.0，上游源码阅读与依赖检查，未完整编译；不是本实验依赖 |
+| `vendor/vsag/` | v0.15.0，已独立构建共享库与两个原例子；不是本 hnswlib 实验依赖 |
 | [smoke.cpp](smoke.cpp) | 合成数据、精确真值、共享索引、查询与计时 |
 | [prepare_variant.py](prepare_variant.py) | 校验上游源码，生成修改底层查询循环的实验头文件 |
 | [test_prepare_variant.py](test_prepare_variant.py) | LF、CRLF 两种源码换行符与实际修改拒绝的迁移检查 |
@@ -55,4 +55,8 @@ hnswlib v0.8.0，提交 `3f3429661187e4c24a490a0f148fc6bc89042b3d`。原版仓�
 
 此前在 AMD Ryzen 7 7735H、Ubuntu 24.04 / WSL2、GCC 13.3.0 下完成；六组结果检查一致，没有观察到加速。小合成数据、固定运行顺序与 WSL 限制了性能解释，不是正式真实数据评测。
 
-原生 Ubuntu 尚未执行。切换系统后先重跑同一小实验验证流程，再考虑 SIFT1M 和硬件事件。WSL 与原生测量单独保留，不混为同一组结果。
+原生 Ubuntu 已于 2026-11-09 完成同规模小实验，27 行测量与六组结果集合检查通过，本次未观察到加速。结果保存于 [results_ubuntu_2026-11-09](results_ubuntu_2026-11-09/)，环境与限制见 [初始化记录](INITIALIZATION_2026-11-09.md)。后续再考虑 SIFT1M 和硬件事件。WSL 与原生测量单独保留，不混为同一组结果。
+
+## 独立 VSAG 源码运行入口
+
+[vsag/README.md](vsag/README.md) 记录完整 VSAG 库构建与原版小例子运行；上游源码、构建产物、结果分别放置，旧 hnswlib 输出不被覆盖。此入口尚未进行论文方法消融。

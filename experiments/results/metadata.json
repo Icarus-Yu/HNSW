@@ -1,6 +1,6 @@
 {
   "purpose": "VSAG section 3.2 partial method reproduction; synthetic smoke only",
-  "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "platform": "Linux-6.11.0-29-generic-x86_64-with-glibc2.39",
   "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
   "hnswlib_commit": "3f3429661187e4c24a490a0f148fc6bc89042b3d",
   "flags": [

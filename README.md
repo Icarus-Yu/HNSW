@@ -10,7 +10,8 @@
 
 - 已在 WSL2 跑通 hnswlib 与 VSAG §3.2 部分方法：2 万条合成向量、300 条查询、3 档搜索参数。
 - 两个实验版的 top-10 集合与原版一致；当前小实验没有观察到加速。
-- 完整 VSAG 尚未编译；原生 Ubuntu 环境尚未检查和运行。
+- 原生 Ubuntu 24.04.2 已完成环境检查与同规模小实验：三个迁移测试通过、27 行测量、六组结果集合一致；本次未观察到加速。VSAG v0.15.0 已独立构建并跑通两个原版例子，见 [VSAG 小规模运行](experiments/vsag/README.md)。
+- 原生结果与环境记录已归档至 [results_ubuntu_2026-11-09](experiments/results_ubuntu_2026-11-09/)，详见 [初始化记录](experiments/INITIALIZATION_2026-11-09.md)。
 - WSL 原始结果已单独保存在 [results_wsl_2026-11-09](experiments/results_wsl_2026-11-09/)，切换后不要覆盖该目录。
 
 ## 环境与依赖
@@ -63,7 +64,7 @@ perf stat -e cycles,instructions -- true
 
 当前小实验不依赖完整 VSAG。已下载的 v0.15.0 供阅读和依赖检查，其 Ubuntu 安装脚本列有 CMake、gfortran、Python 开发头文件、OpenMP、libaio、curl 开发库，并在 x86 默认依赖 MKL；构建还拉取 Boost、OpenBLAS、antlr4 等组件。
 
-这是该版本源码的依赖清单，不是已经在原生 Ubuntu 验证成功的安装方案。若后续选择完整构建，先固定版本和所需模块，再核对依赖；不要为了当前头文件实验先安装整套依赖。v0.15.0 尚未确认是论文对应提交。
+本机现已使用 OpenBLAS 路径构建该版本共享库，并运行 HNSW（1,000 条）与 HGraph/SQ8（10,000 条）例子；命令、依赖与构建兼容性说明见 [VSAG 运行入口](experiments/vsag/README.md)。该入口与原有 hnswlib 实验分开。v0.15.0 尚未确认是论文对应提交，例子运行不代表论文性能复现。
 
 ## 换到原生 Ubuntu 后如何运行
 
