@@ -69,3 +69,9 @@ CPU 2 必须在当前允许集合中。运行脚本限制 OpenMP/OpenBLAS 环境
 首次配置强制关闭 AVX-512，但保留 AVX2，在 `src/simd/avx512.cpp` 的 `FP32ComputeL2SqrBatch4` 中出现 `__m512` 未声明错误。该函数内 AVX-512 指令块被 `ENABLE_AVX2` 而不是 `ENABLE_AVX512` 保护；邻近函数使用的是后者。
 
 本轮选择恢复上游默认多指令集编译，不修改算法或 vendor 文件。编译 AVX-512 内核不等于运行 AVX-512；`src/simd/simd.cpp` 使用 cpuinfo 检查 CPU，`src/simd/fp32_simd.cpp` 按支持情况选择函数。最终须用本机实际运行验证。首次失败日志保留为 `experiments/build/vsag/logs/build-avx512-disabled.log`。
+
+## 目录迁移（2026-11-11）
+
+当前项目位于 `/home/hualuck7/Desktop/HNSW`。旧路径缓存已备份，VSAG 共享库与两个例子已在新位置重新构建并运行通过；原构建、运行命令继续可用。
+
+build.sh 会识别移动后的 CMake 缓存，先备份再重新生成。run_examples.py 按自身位置优先查找当前构建库，不需要手动设置 LD_LIBRARY_PATH。详细步骤、备份位置和新结果见 [迁移修复记录](RELOCATION_2026-11-11.md)。历史结果中的旧路径保持为当时的环境记录。

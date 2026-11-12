@@ -12,6 +12,16 @@ fi
 for command in cmake g++ make gfortran; do
     command -v "$command" >/dev/null || { echo "Missing: $command" >&2; exit 1; }
 done
+# CMake build trees contain absolute paths and cannot be moved as a cache.
+if [[ -f "$build_dir/CMakeCache.txt" ]]; then
+    cached_source=$(sed -n 's/^CMAKE_HOME_DIRECTORY:INTERNAL=//p' "$build_dir/CMakeCache.txt")
+    cached_build=$(sed -n 's/^CMAKE_CACHEFILE_DIR:INTERNAL=//p' "$build_dir/CMakeCache.txt")
+    if [[ "$cached_source" != "$source_dir" || "$cached_build" != "$build_dir" ]]; then
+        backup_dir="${build_dir}.before-relocation.$(date +%Y%m%d-%H%M%S).$$"
+        echo "Moved CMake cache detected; preserving it in $backup_dir"
+        mv -- "$build_dir" "$backup_dir"
+    fi
+fi
 mkdir -p "$build_dir/logs"
 cmake -S "$source_dir" -B "$build_dir" \
     -DCMAKE_BUILD_TYPE=Release \

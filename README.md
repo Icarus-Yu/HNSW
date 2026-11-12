@@ -1,10 +1,12 @@
 # HNSW 访存与执行优化
 
-更新：2026-11-09。
+更新：2026-11-11。
 
 研究主线：CPU 图检索的访存与执行优化，以 VSAG（PVLDB 2025）为核心论文，KBest 用于提取硬件优化及可迁移思想。具体改进方法和创新点仍待验证。
 
 换系统后，接续工作的助手先阅读 [CONTINUE_HERE.md](CONTINUE_HERE.md)，再检查本机环境。正式实验使用双系统中的原生 Ubuntu 24；WSL 保留为开发与流程检查环境。
+
+当前项目路径：`/home/hualuck7/Desktop/HNSW`。目录迁移后的 VSAG 构建与运行入口已修复，见 [迁移记录](experiments/vsag/RELOCATION_2026-11-11.md)。
 
 ## 学习记录
 

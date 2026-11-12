@@ -29,9 +29,17 @@ def main():
     output = Path(__file__).resolve().parent / 'results' / stamp
     output.mkdir(parents=True, exist_ok=False)
     env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1')
+    library_dir = BUILD / 'src'
+    if not (library_dir / 'libvsag.so').is_file():
+        raise RuntimeError('Missing libvsag.so; first run bash experiments/vsag/build.sh')
+    # Prefer this checkout's library even if a binary still has an old RUNPATH.
+    env['LD_LIBRARY_PATH'] = str(library_dir)
+    if os.environ.get('LD_LIBRARY_PATH'):
+        env['LD_LIBRARY_PATH'] += os.pathsep + os.environ['LD_LIBRARY_PATH']
     report = {
         'purpose': 'Upstream examples API smoke; no recall or QPS claims',
         'vsag_commit': commit, 'platform': platform.platform(),
+        'project_root': str(ROOT), 'library_directory': str(library_dir),
         'compiler': subprocess.check_output(['g++', '--version'], text=True).splitlines()[0],
         'cmake': subprocess.check_output(['cmake', '--version'], text=True).splitlines()[0],
         'affinity': sorted(os.sched_getaffinity(0)),

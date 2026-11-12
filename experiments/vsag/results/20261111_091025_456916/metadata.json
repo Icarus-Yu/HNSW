@@ -1,0 +1,45 @@
+{
+  "purpose": "Upstream examples API smoke; no recall or QPS claims",
+  "vsag_commit": "295acf3c5e1b202bd414ef42f11b9d741aefdd6a",
+  "platform": "Linux-6.11.0-29-generic-x86_64-with-glibc2.39",
+  "project_root": "/home/hualuck7/Desktop/HNSW",
+  "library_directory": "/home/hualuck7/Desktop/HNSW/experiments/build/vsag.before-relocation.20261111-090825.10097/src",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "cmake": "cmake version 3.28.3",
+  "affinity": [
+    2
+  ],
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "cmake_cache_sha256": "4982d4a24378e6c0bd625447ebc4ca365ab97d7f50cd54135745181069fd90e1",
+  "cases": [
+    {
+      "example": "101_index_hnsw",
+      "n": 1000,
+      "dim": 128,
+      "nq": 1,
+      "k": 10,
+      "seed": 47,
+      "quantization": "fp32",
+      "wall_seconds_including_build": 0.485714143999985,
+      "checks": "size, 10 unique in-range IDs, finite nonnegative sorted distances",
+      "binary_sha256": "72cacae6a94b8fd0d393cbfa258600dd9c5a44e9eb19f7c69624df9fd72be65e",
+      "example_source_sha256": "36862e1d286d7601139d51cbbbeffb4b289bd950e07d75c8b1056e8b3c32d17e"
+    },
+    {
+      "example": "103_index_hgraph",
+      "n": 10000,
+      "dim": 128,
+      "nq": 1,
+      "k": 10,
+      "seed": 47,
+      "quantization": "sq8",
+      "wall_seconds_including_build": 4.392633500000102,
+      "checks": "size, 10 unique in-range IDs, finite nonnegative sorted distances",
+      "binary_sha256": "cfd5d74870b22d8c7783e2e1c58fe25b4772002e0ec3ba5d4f184c6fda052f38",
+      "example_source_sha256": "9c518cabf18eea5d7276b08945350f60eb6619b5e307f66e49f8e46ac4da7ece"
+    }
+  ]
+}
